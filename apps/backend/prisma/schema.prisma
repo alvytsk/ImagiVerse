@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url  	    = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// Define the User model
+model User {
+  id       Int      @id @default(autoincrement())
+  username String   @unique
+  email    String   @unique
+  galleries Gallery[]
+  likes    Like[]
+  comments Comment[]
+}
+
+// Define the Gallery model
+model Gallery {
+  id        Int      @id @default(autoincrement())
+  name      String
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  files     File[]
+}
+
+// Define the File model
+model File {
+  id         Int      @id @default(autoincrement())
+  filename   String
+  galleryId  Int
+  gallery    Gallery  @relation(fields: [galleryId], references: [id])
+  likes      Like[]
+  comments   Comment[]
+  createdAt  DateTime @default(now())
+}
+
+// Define the Like model
+model Like {
+  id      Int  @id @default(autoincrement())
+  userId  Int
+  fileId  Int
+  user    User @relation(fields: [userId], references: [id])
+  file    File @relation(fields: [fileId], references: [id])
+}
+
+// Define the Comment model
+model Comment {
+  id      Int      @id @default(autoincrement())
+  text    String
+  userId  Int
+  fileId  Int
+  user    User    @relation(fields: [userId], references: [id])
+  file    File    @relation(fields: [fileId], references: [id])
+  createdAt DateTime @default(now())
+}
